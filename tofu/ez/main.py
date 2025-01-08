@@ -191,8 +191,8 @@ def frmt_ufo_cmds(cmds, ctset, out_pattern, ax, nviews, wh, n_per_pass):
 
     return nviews, wh
 
-#TODO: get rid of fdt_names everywhere - work directly with EZVARS instead
-def execute_reconstruction(fdt_names):
+
+def execute_reconstruction():
     # array with the list of commands
     cmds = []
     # create temporary directory
@@ -206,6 +206,7 @@ def execute_reconstruction(fdt_names):
     # get list of all good CT directories to be reconstructed
 
     print('*********** Analyzing input directory ************')
+    fdt_names = get_fdt_names()
     # Find valid CT directories in the input directory
     W, lvl0 = get_CTdirs_list(EZVARS['inout']['input-dir']['value'], fdt_names)
     # W is an array of tuples (path to CT directory, directory type)
@@ -391,3 +392,13 @@ def findSlicesDirs(lvl0):
             if name == "sli":
                 recd_sets.append(root[len(lvl0) + 1 :])
     return recd_sets
+
+
+def execute_from_params(params):
+    # initialize dictionary entries
+    load_values_from_ezdefault(EZVARS)
+    load_values_from_ezdefault(SECTIONS)
+    load_values_from_ezdefault(EZVARS_aux)
+    LOG.debug("Import YAML Path: " + params.ezvars)
+    import_values(params.ezvars, ['ezvars', 'tofu', 'ezvars_aux'])
+    execute_reconstruction()
